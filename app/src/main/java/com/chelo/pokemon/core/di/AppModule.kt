@@ -2,6 +2,7 @@ package com.chelo.pokemon.core.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.chelo.pokemon.core.store.EncryptedPreferences
 import com.chelo.pokemon.feature.home.data.repository.PokemonRepositoryImpl
 import com.chelo.pokemon.feature.home.data.source.PokemonApiService
 import com.chelo.pokemon.feature.home.data.source.PokemonLocalDataSource
@@ -13,7 +14,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -46,11 +46,11 @@ class AppModule {
     @Singleton
     fun providePokemonLocalDataSource(
         gson: Gson,
-        sharedPrefs: SharedPreferences
+        @ApplicationContext context: Context,
     ): PokemonLocalDataSource {
         return PokemonLocalDataSource(
             gson = gson,
-            sharedPrefs = sharedPrefs
+            context = context
         )
     }
 
