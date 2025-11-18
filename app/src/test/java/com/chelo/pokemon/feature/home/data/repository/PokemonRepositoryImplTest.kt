@@ -103,8 +103,10 @@ class PokemonRepositoryImplTest {
             id = 1,
             name = "Bulbasaur",
             imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+            imageUrls = listOf("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"),
             height = 7,
             weight = 69,
+            description = null,
             types = listOf("grass"),
             baseStats = mapOf("hp" to 45)
         )

@@ -1,6 +1,7 @@
 package com.chelo.pokemon.feature.home.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +16,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -37,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,10 +52,15 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.chelo.pokemon.core.theme.GrayApp
 import com.chelo.pokemon.feature.home.domain.entities.PokemonDetail
+import com.chelo.pokemon.R
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PokemonDetailContent(
-    pokemon: PokemonDetail
+    pokemon: PokemonDetail,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    onShare: (String) -> Unit,
 ) {
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("About", "Base Stats")
@@ -110,6 +123,28 @@ fun PokemonDetailContent(
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
+
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ElevatedButton(onClick = {
+                    val shareText = buildString {
+                        append("${pokemon.name} (id ${pokemon.id})\n")
+                        append(pokemon.imageUrls.firstOrNull() ?: pokemon.imageUrl)
+                        append("\nhttps://pokeapi.co/api/v2/pokemon/${pokemon.name.lowercase()}")
+                    }
+                    onShare(shareText)
+                }) {
+                    Text("Compartir")
+                }
+
+                ElevatedButton(onClick = onToggleFavorite) {
+                    Text(if (isFavorite) "Eliminar de mis favoritos" else "Agregar a favoritos")
+                }
+            }
         }
 
         Spacer(Modifier.height(12.dp))
@@ -121,12 +156,11 @@ fun PokemonDetailContent(
                 .height(200.dp),
             contentAlignment = Alignment.Center
         ) {
-
-            Column(
-
-            ) {
+            val pagerState = rememberPagerState(pageCount = { maxOf(1, pokemon.imageUrls.size) })
+            HorizontalPager(state = pagerState) { page ->
+                val url = pokemon.imageUrls.getOrNull(page) ?: pokemon.imageUrl
                 AsyncImage(
-                    model = pokemon.imageUrl,
+                    model = url,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.size(200.dp)
@@ -209,6 +243,12 @@ fun PokemonDetailContent(
 fun AboutTab(pokemon: PokemonDetail) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
+        if (!pokemon.description.isNullOrBlank()) {
+            Text(
+                text = pokemon.description ?: "",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
         InfoRow(label = "Species", value = "Seed")
         InfoRow(label = "Height", value = "${pokemon.height / 10f} m (${pokemon.height})")
         InfoRow(label = "Weight", value = "${pokemon.weight / 10f} kg (${pokemon.weight})")
@@ -322,9 +362,14 @@ fun PokemonDetailContentPreview() {
         id = 1,
         name = "Bulbasaur",
         imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+        imageUrls = listOf(
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"
+        ),
         types = listOf("Grass", "Poison"),
         height = 7,
         weight = 69,
+        description = "A strange seed was planted on its back at birth. The plant sprouts and grows with this Pokémon.",
         baseStats = mapOf(
             "hp" to 45,
             "attack" to 49,
@@ -338,6 +383,11 @@ fun PokemonDetailContentPreview() {
     Box(
         modifier = Modifier.background(Color.White)
     ) {
-        PokemonDetailContent(pokemon = samplePokemon)
+        PokemonDetailContent(
+            pokemon = samplePokemon,
+            isFavorite = true,
+            onToggleFavorite = {},
+            onShare = {}
+        )
     }
 }

@@ -21,19 +21,18 @@ class PokemonLocalDataSource @Inject constructor(
     private fun detailKey(name: String) =
         "pokemon_detail_${name.lowercase()}"
 
+    private val favoritesKey = "pokemon_favorites"
+    private val recentSearchesKey = "recent_searches"
 
 
     fun savePokemonPage(limit: Int, offset: Int, page: PokemonPage) {
         val json = gson.toJson(page)
 
-
-         sharedPrefs.saveEncrypted(pageKey(limit, offset), json)
-
+        sharedPrefs.saveEncrypted(pageKey(limit, offset), json)
     }
 
     fun getPokemonPage(limit: Int, offset: Int): PokemonPage? {
 
-        // val json = sharedPrefs.getString(pageKey(limit, offset), null)
         val json: String? = sharedPrefs.getDecrypted(pageKey(limit, offset))
 
         if (json.isNullOrEmpty()) return null
@@ -49,12 +48,11 @@ class PokemonLocalDataSource @Inject constructor(
     fun savePokemonDetail(detail: PokemonDetail) {
         val json = gson.toJson(detail)
 
-         sharedPrefs.saveEncrypted(detailKey(detail.name), json)
+        sharedPrefs.saveEncrypted(detailKey(detail.name), json)
     }
 
     fun getPokemonDetail(name: String): PokemonDetail? {
 
-        // val json = sharedPrefs.getString(detailKey(name), null)
         val json: String? = sharedPrefs.getDecrypted(detailKey(name))
 
         if (json.isNullOrEmpty()) return null
@@ -64,5 +62,47 @@ class PokemonLocalDataSource @Inject constructor(
         } catch (e: Exception) {
             null
         }
+    }
+
+    fun getFavorites(): Set<String> {
+        val json = sharedPrefs.getDecrypted(favoritesKey) ?: return emptySet()
+        return try {
+            gson.fromJson(json, Array<String>::class.java).toSet()
+        } catch (e: Exception) {
+            emptySet()
+        }
+    }
+
+    fun isFavorite(name: String): Boolean = getFavorites().contains(name.lowercase())
+
+    fun addFavorite(name: String) {
+        val set = getFavorites().toMutableSet()
+        set.add(name.lowercase())
+        sharedPrefs.saveEncrypted(favoritesKey, gson.toJson(set.toTypedArray()))
+    }
+
+    fun removeFavorite(name: String) {
+        val set = getFavorites().toMutableSet()
+        set.remove(name.lowercase())
+        sharedPrefs.saveEncrypted(favoritesKey, gson.toJson(set.toTypedArray()))
+    }
+
+    fun getRecentSearches(): List<String> {
+        val json = sharedPrefs.getDecrypted(recentSearchesKey) ?: return emptyList()
+        return try {
+            gson.fromJson(json, Array<String>::class.java).toList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    fun saveSearchQuery(query: String, maxItems: Int = 10) {
+        val norm = query.trim()
+        if (norm.isEmpty()) return
+        val list = getRecentSearches().toMutableList()
+        list.removeAll { it.equals(norm, ignoreCase = true) }
+        list.add(0, norm)
+        while (list.size > maxItems) list.removeLastOrNull()
+        sharedPrefs.saveEncrypted(recentSearchesKey, gson.toJson(list.toTypedArray()))
     }
 }

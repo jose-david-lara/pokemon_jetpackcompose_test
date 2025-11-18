@@ -32,7 +32,9 @@ class GetPokemonDetailUseCaseTest {
             height = 7,
             weight = 69,
             types = listOf("grass"),
-            baseStats = mapOf("hp" to 45)
+            baseStats = mapOf("hp" to 45),
+            imageUrls = emptyList(),
+            description = "This description"
         )
         coEvery { repository.getPokemonDetail("bulbasaur") } returns detail
 

@@ -11,7 +11,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,6 +28,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -46,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -118,6 +126,7 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
+        val context = LocalContext.current
         AnimatedContent(
             modifier = Modifier.background(Color.White),
             targetState = currentDetailState,
@@ -138,11 +147,36 @@ fun HomeScreen(
                         else state.pokemons.filter { it.name.contains(query, ignoreCase = true) }
                     }
 
-                    androidx.compose.foundation.layout.Column(
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(paddingValues)
                     ) {
+                        AnimatedVisibility(visible = state.errorMessage != null) {
+                            Surface(color = MaterialTheme.colorScheme.error) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = state.errorMessage ?: "",
+                                        color = MaterialTheme.colorScheme.onError,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(onClick = { viewModel.dismissError() }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = "Cerrar",
+                                            tint = MaterialTheme.colorScheme.onError
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
                         OutlinedTextField(
                             value = query,
                             onValueChange = setQuery,
@@ -169,6 +203,61 @@ fun HomeScreen(
                                 unfocusedLabelColor = DarkGray,
                             )
                         )
+
+                        if (query.isBlank() && state.recentSearches.isNotEmpty()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp)
+                            ) {
+                                Text(
+                                    text = "Búsquedas recientes",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(vertical = 6.dp)
+                                )
+                                androidx.compose.foundation.layout.Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    state.recentSearches.take(6).forEach { recent ->
+                                        AssistChip(
+                                            onClick = { setQuery(recent) },
+                                            label = { Text(recent) },
+                                            colors = AssistChipDefaults.assistChipColors()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        if (state.favoriteNames.isNotEmpty()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp)
+                            ) {
+                                Text(
+                                    text = "Mis favoritos",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(vertical = 6.dp)
+                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    state.favoriteNames.take(10).forEach { favName ->
+                                        AssistChip(
+                                            onClick = {
+                                                viewModel.loadDetail(favName)
+                                                onNavigateToDetail()
+                                            },
+                                            label = { Text(favName.replaceFirstChar { it.uppercase() }) },
+                                            colors = AssistChipDefaults.assistChipColors()
+                                        )
+                                    }
+                                }
+                            }
+                        }
 
                         if (filtered.isEmpty() && query.isNotBlank()) {
                             Box(
@@ -208,6 +297,9 @@ fun HomeScreen(
                                     PokemonRow(
                                         pokemon = pokemon,
                                         onClick = {
+                                            if (query.isNotBlank()) {
+                                                viewModel.saveSearchQuery(query)
+                                            }
                                             viewModel.loadDetail(pokemon.name)
                                             onNavigateToDetail()
                                         },
@@ -248,6 +340,30 @@ fun HomeScreen(
                             .padding(paddingValues),
                         contentAlignment = Alignment.Center
                     ) {
+                        AnimatedVisibility(visible = state.errorMessage != null) {
+                            Surface(color = MaterialTheme.colorScheme.error) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = state.errorMessage ?: "",
+                                        color = MaterialTheme.colorScheme.onError,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(onClick = { viewModel.dismissError() }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = "Cerrar",
+                                            tint = MaterialTheme.colorScheme.onError
+                                        )
+                                    }
+                                }
+                            }
+                        }
                         CircularProgressIndicator()
                     }
                 }
@@ -258,8 +374,45 @@ fun HomeScreen(
                             .fillMaxSize()
                             .padding(paddingValues)
                     ) {
+                        AnimatedVisibility(visible = state.errorMessage != null) {
+                            Surface(color = MaterialTheme.colorScheme.error) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = state.errorMessage ?: "",
+                                        color = MaterialTheme.colorScheme.onError,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(onClick = { viewModel.dismissError() }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = "Cerrar",
+                                            tint = MaterialTheme.colorScheme.onError
+                                        )
+                                    }
+                                }
+                            }
+                        }
                         state.selectedPokemon?.let { pokemon ->
-                            PokemonDetailContent(pokemon)
+                            PokemonDetailContent(
+                                pokemon = pokemon,
+                                isFavorite = state.isFavoriteSelected,
+                                onToggleFavorite = { viewModel.toggleFavoriteSelected() },
+                                onShare = { text ->
+                                    val sendIntent = android.content.Intent().apply {
+                                        action = android.content.Intent.ACTION_SEND
+                                        putExtra(android.content.Intent.EXTRA_TEXT, text)
+                                        type = "text/plain"
+                                    }
+                                    val shareIntent = android.content.Intent.createChooser(sendIntent, null)
+                                    context.startActivity(shareIntent)
+                                }
+                            )
                         }
                     }
                 }

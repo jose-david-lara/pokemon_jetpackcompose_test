@@ -42,11 +42,20 @@ fun PokemonDetailResponseDto.toDomain(): PokemonDetail {
         statDto.stat.name to statDto.base_stat
     }
 
+    val primaryImage = sprites.front_default
+        ?: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
+    val imageList = listOf(
+        primaryImage,
+        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png",
+        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png"
+    ).distinct()
+
     return PokemonDetail(
         id = id,
         name = name.replaceFirstChar { it.uppercase() },
-        imageUrl = sprites.front_default
-            ?: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png",
+        imageUrl = primaryImage,
+        imageUrls = imageList,
+        description = null,
         height = height,
         weight = weight,
         types = typesDomain,
