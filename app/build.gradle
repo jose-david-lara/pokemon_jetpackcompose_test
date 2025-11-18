@@ -67,4 +67,11 @@ dependencies {
 
     //Material3
     implementation libs.androidx.compose.material3
+
+    //Retrofit
+    implementation libs.retrofit
+    implementation libs.converter.gson
+
+    //Logging Interceptor
+    implementation libs.okhttp.logging.interceptor
 }
