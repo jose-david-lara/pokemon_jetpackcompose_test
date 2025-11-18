@@ -15,6 +15,8 @@ hiltNavigationCompose = "1.2.0"
 retrofit = "2.9.0"
 loggingInterceptor = "4.12.0"
 coil = "2.6.0"
+mockk = "1.13.10"
+coroutines = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,7 +50,13 @@ converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", ve
 # Logging Interceptor
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptor" }
 
+# Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+# Mockk
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

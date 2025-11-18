@@ -75,5 +75,10 @@ dependencies {
     //Logging Interceptor
     implementation libs.okhttp.logging.interceptor
 
+    //Coi
     implementation libs.coil.compose
+
+    // Testing
+    testImplementation libs.mockk
+    testImplementation libs.kotlinx.coroutines.test
 }
