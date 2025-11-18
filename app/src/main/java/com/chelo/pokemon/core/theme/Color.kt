@@ -1,4 +1,4 @@
-package com.chelo.pokemon.ui.theme
+package com.chelo.pokemon.core.theme
 
 import androidx.compose.ui.graphics.Color
 

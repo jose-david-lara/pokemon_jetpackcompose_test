@@ -2,16 +2,18 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
 }
 
 android {
     namespace 'com.chelo.pokemon'
-    compileSdk 36
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.chelo.pokemon"
         minSdk 28
-        targetSdk 36
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -53,4 +55,16 @@ dependencies {
     androidTestImplementation libs.androidx.compose.ui.test.junit4
     debugImplementation libs.androidx.compose.ui.tooling
     debugImplementation libs.androidx.compose.ui.test.manifest
+
+    // Hilt (usando los alias)
+    implementation libs.hilt.android
+    ksp libs.hilt.compiler
+    ksp libs.androidx.hilt.compiler
+    implementation libs.androidx.hilt.navigation.compose
+
+    //Navigation
+    implementation libs.androidx.navigation.compose
+
+    //Material3
+    implementation libs.androidx.compose.material3
 }
