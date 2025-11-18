@@ -22,11 +22,7 @@ class PokemonRepositoryImpl @Inject constructor(
             page
         } catch (e: Exception) {
             val cached = localDataSource.getPokemonPage(limit, offset)
-            if (cached != null) {
-                cached
-            } else {
-                throw e
-            }
+            cached ?: throw e
         }
     }
 
@@ -39,11 +35,7 @@ class PokemonRepositoryImpl @Inject constructor(
             detail
         } catch (e: Exception) {
             val cached = localDataSource.getPokemonDetail(name)
-            if (cached != null) {
-                cached
-            } else {
-                throw e
-            }
+            cached ?: throw e
         }
     }
 }
