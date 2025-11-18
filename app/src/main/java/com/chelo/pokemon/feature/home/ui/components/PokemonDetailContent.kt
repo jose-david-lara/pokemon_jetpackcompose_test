@@ -1,17 +1,36 @@
 package com.chelo.pokemon.feature.home.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,8 +39,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.chelo.pokemon.core.theme.GrayApp
 import com.chelo.pokemon.feature.home.domain.entities.PokemonDetail
 
 @Composable
@@ -34,11 +55,12 @@ fun PokemonDetailContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
+
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         Color.Transparent,
-                        Color.White
+                        Color.Transparent
                     ),
                     startY = 0f,
                     endY = 800f
@@ -47,12 +69,13 @@ fun PokemonDetailContent(
     ) {
 
 
-        // Nombre y número
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
-        ) {
+        )
+        {
             Text(
                 text = pokemon.name,
                 style = MaterialTheme.typography.headlineLarge,
@@ -62,7 +85,7 @@ fun PokemonDetailContent(
 
             Spacer(Modifier.height(8.dp))
 
-            // Tipos
+
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 pokemon.types.forEach { type ->
                     Surface(
@@ -89,85 +112,92 @@ fun PokemonDetailContent(
             )
         }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
 
-        // Imagen del Pokémon (centrada y grande)
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Círculo de fondo decorativo
-            Box(
-                modifier = Modifier
-                    .size(180.dp)
-                    .background(
-                        color = Color.White.copy(alpha = 0.2f),
-                        shape = CircleShape
-                    )
-            )
 
-            AsyncImage(
-                model = pokemon.imageUrl,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(200.dp)
-            )
+            Column(
+
+            ) {
+                AsyncImage(
+                    model = pokemon.imageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(200.dp)
+                )
+            }
         }
 
         Spacer(Modifier.height(16.dp))
 
-        // Tarjeta blanca con contenido
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                // Tabs
-                TabRow(
-                    selectedTabIndex = selectedTab,
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            text = {
-                                Text(
-                                    text = title,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
-                                )
-                            }
-                        )
-                    }
-                }
 
-                // Contenido según tab seleccionado
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent),
+                shape = RoundedCornerShape(topStart = 60.dp, topEnd = 60.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(24.dp)
+                        .background(Color.White)
                 ) {
-                    when (selectedTab) {
-                        0 -> AboutTab(pokemon)
-                        1 -> BaseStatsTab(pokemon)
+                    // Tabs
+                    TabRow(
+                        selectedTabIndex = selectedTab,
+                        containerColor = GrayApp.copy(alpha = 0.1f),
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        divider = {
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = Color.Transparent
+                            )
+                        },
+                        indicator = { tabPositions ->
+                            TabRowDefaults.SecondaryIndicator(
+                                Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .background(color = GrayApp.copy(alpha = 0.1f))
+                            .padding(24.dp)
+                    ) {
+                        when (selectedTab) {
+                            0 -> AboutTab(pokemon)
+                            1 -> BaseStatsTab(pokemon)
+                        }
                     }
                 }
             }
@@ -178,24 +208,13 @@ fun PokemonDetailContent(
 @Composable
 fun AboutTab(pokemon: PokemonDetail) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        // Species
+
         InfoRow(label = "Species", value = "Seed")
-
-        // Height
         InfoRow(label = "Height", value = "${pokemon.height / 10f} m (${pokemon.height})")
-
-        // Weight
         InfoRow(label = "Weight", value = "${pokemon.weight / 10f} kg (${pokemon.weight})")
-
-        // Abilities
-       /* InfoRow(
-            label = "Abilities",
-            value = "Unknown"
-        )*/
 
         Spacer(Modifier.height(24.dp))
 
-        // Breeding section
         Text(
             text = "Breeding",
             style = MaterialTheme.typography.titleLarge,
@@ -266,7 +285,6 @@ fun StatRow(stat: String, value: Int, maxValue: Int = 255) {
 
         Spacer(Modifier.width(16.dp))
 
-        // Barra de progreso
         LinearProgressIndicator(
             progress = { value.toFloat() / maxValue },
             modifier = Modifier
@@ -284,61 +302,6 @@ fun StatRow(stat: String, value: Int, maxValue: Int = 255) {
     }
 }
 
-@Composable
-fun EvolutionTab() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Evolution chain coming soon...")
-    }
-}
-
-@Composable
-fun MovesTab() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Moves list coming soon...")
-    }
-}
-
-@Composable
-fun InfoChip(title: String, value: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(8.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.Gray
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-/*@Composable
-private fun InfoChip(title: String, value: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-        ) {
-            Text(text = title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.size(8.dp))
-            Text(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-        }
-    }
-}*/
 
 @Composable
 private fun StatRow(stat: String, value: Int) {
@@ -349,5 +312,32 @@ private fun StatRow(stat: String, value: Int) {
     ) {
         Text(text = stat.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodyMedium)
         Text(text = value.toString(), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Preview
+@Composable
+fun PokemonDetailContentPreview() {
+    val samplePokemon = PokemonDetail(
+        id = 1,
+        name = "Bulbasaur",
+        imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+        types = listOf("Grass", "Poison"),
+        height = 7,
+        weight = 69,
+        baseStats = mapOf(
+            "hp" to 45,
+            "attack" to 49,
+            "defense" to 49,
+            "special-attack" to 65,
+            "special-defense" to 65,
+            "speed" to 45
+        )
+    )
+
+    Box(
+        modifier = Modifier.background(Color.White)
+    ) {
+        PokemonDetailContent(pokemon = samplePokemon)
     }
 }
