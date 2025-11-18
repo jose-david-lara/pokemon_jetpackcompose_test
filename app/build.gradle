@@ -74,4 +74,6 @@ dependencies {
 
     //Logging Interceptor
     implementation libs.okhttp.logging.interceptor
+
+    implementation libs.coil.compose
 }
